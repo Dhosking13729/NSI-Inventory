@@ -1,0 +1,9 @@
+# DEV: my workstation (IntelliJ IDEA). File-based H2 so data survives restarts.
+spring:
+  datasource:
+    url: jdbc:h2:file:./data/nsi-dev;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;AUTO_SERVER=TRUE
+nsi:
+  bootstrap-admin-password: ${NSI_BOOTSTRAP_ADMIN_PASSWORD:dev-admin-password}
+logging:
+  level:
+    com.nauticalstructures: DEBUG

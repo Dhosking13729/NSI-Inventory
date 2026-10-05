@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head(${materialId == null ? 'Add material' : 'Edit material'})}"></head>
+<body>
+<header th:replace="~{layout :: nav}"></header>
+<main>
+    <h1 th:text="${materialId == null ? 'Add material' : 'Edit material'}">Material</h1>
+    <div th:replace="~{layout :: messages}"></div>
+    <form class="card" method="post" th:action="${materialId == null} ? @{/materials} : @{/materials/{id}(id=${materialId})}">
+        <label>Material name <input name="materialName" maxlength="100" th:value="${form['materialName']}" required></label>
+        <label>Material type
+            <select name="materialType" required>
+                <option value="">Choose…</option>
+                <option th:each="t : ${types}" th:value="${t.name()}" th:text="${t.label()}" th:selected="${form['materialType'] == t.name()}"></option>
+            </select>
+        </label>
+        <label>Unit of measure <input name="unitOfMeasure" maxlength="20" placeholder="each, ft, gal" th:value="${form['unitOfMeasure']}" required></label>
+        <label>Quantity on hand <input name="quantityOnHand" inputmode="decimal" th:value="${form['quantityOnHand'] ?: '0'}" required></label>
+        <label>Reorder threshold <input name="reorderThreshold" inputmode="decimal" th:value="${form['reorderThreshold'] ?: '0'}" required></label>
+        <label>Barcode / QR value <input name="barcodeValue" maxlength="50" class="mono" th:value="${form['barcodeValue']}" required></label>
+        <button type="submit">Save</button>
+    </form>
+</main>
+</body>
+</html>

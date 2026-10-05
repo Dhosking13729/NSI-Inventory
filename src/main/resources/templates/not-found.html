@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head('Not found')}"></head>
+<body>
+<header th:replace="~{layout :: nav}"></header>
+<main>
+    <h1>Not found</h1>
+    <p th:text="${message}"></p>
+    <a th:href="@{/materials}">Back to materials</a>
+</main>
+</body>
+</html>
