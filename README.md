@@ -45,3 +45,5 @@ src/test/java                   27 unit, integration and web tests
 data/sample-inventory.csv       spreadsheet export in import format
 infra/aws-setup-test.md         S3 bucket + GitHub secrets for TEST
 ```
+
+Repository: https://github.com/Dhosking13729/NSI-Inventory
