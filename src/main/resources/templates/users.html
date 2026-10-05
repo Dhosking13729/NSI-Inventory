@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head('Staff users')}"></head>
+<body>
+<header th:replace="~{layout :: nav}"></header>
+<main>
+    <h1>Staff users</h1>
+    <div th:replace="~{layout :: messages}"></div>
+    <table>
+        <thead><tr><th>Name</th><th>Username</th><th>Role</th></tr></thead>
+        <tbody>
+        <tr th:each="u : ${users}">
+            <td th:text="${u.name}"></td>
+            <td class="mono" th:text="${u.username}"></td>
+            <td th:text="${u.role.label()}"></td>
+        </tr>
+        </tbody>
+    </table>
+    <h2>Add a staff user</h2>
+    <form class="card" th:action="@{/admin/users}" method="post">
+        <label>Full name <input name="name" maxlength="100" th:value="${name}" required></label>
+        <label>Username <input name="username" maxlength="50" th:value="${username}" autocomplete="off" required></label>
+        <label>Role
+            <select name="role" required>
+                <option th:each="r : ${roles}" th:value="${r.name()}" th:text="${r.label()}"></option>
+            </select>
+        </label>
+        <label>Temporary password (10+ characters) <input name="password" type="password" minlength="10" autocomplete="new-password" required></label>
+        <button type="submit">Add user</button>
+    </form>
+</main>
+</body>
+</html>

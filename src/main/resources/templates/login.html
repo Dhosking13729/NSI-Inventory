@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head('Log in')}"></head>
+<body class="center">
+<main class="card narrow">
+    <h1>NSI Inventory</h1>
+    <p class="muted">Nautical Structures materials tracking</p>
+    <p class="msg err" th:if="${param.error}">Wrong username or password.</p>
+    <p class="msg ok" th:if="${param.logout}">You have logged out.</p>
+    <form th:action="@{/login}" method="post">
+        <label>Username <input name="username" autocomplete="username" required autofocus></label>
+        <label>Password <input name="password" type="password" autocomplete="current-password" required></label>
+        <button type="submit">Log in</button>
+    </form>
+</main>
+</body>
+</html>

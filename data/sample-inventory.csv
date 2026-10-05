@@ -1,0 +1,11 @@
+MaterialName,MaterialType,UnitOfMeasure,QuantityOnHand,ReorderThreshold,BarcodeValue
+"3/8"" Marine-Grade Stainless Bolt",Fastener,each,420,150,NSI-FST-0038
+316 SS Anchor Shackle 1/2in,Fastener,each,40,15,NSI-FST-0050
+5052-H32 Aluminum Sheet 1/8in 48x96,Aluminum,sheet,18,6,NSI-ALU-0125
+6061-T6 Aluminum Tube 2in OD,Aluminum,ft,240.5,100,NSI-ALU-2000
+A36 Steel Plate 1/4in 48x96,Steel,sheet,9,4,NSI-STL-0250
+304 Stainless Round Bar 1in,Steel,ft,62.75,40,NSI-STL-1000
+Marine Epoxy Primer,Coating,gal,7.5,5,NSI-COT-0101
+Antifouling Bottom Paint,Coating,gal,3,4,NSI-COT-0202
+ER5356 MIG Wire 0.035in 16lb,Consumable,each,6,4,NSI-CON-5356
+Argon/CO2 Shielding Gas Cylinder,Consumable,each,2,2,NSI-CON-0075

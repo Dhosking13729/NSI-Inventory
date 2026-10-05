@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{layout :: head('Materials')}"></head>
+<body>
+<header th:replace="~{layout :: nav}"></header>
+<main>
+    <div class="row">
+        <h1>Materials</h1>
+        <a sec:authorize="hasRole('ADMIN')" class="button" th:href="@{/materials/new}">Add material</a>
+    </div>
+    <div th:replace="~{layout :: messages}"></div>
+    <table>
+        <thead><tr><th>Material</th><th>Type</th><th>Barcode</th><th class="num">On hand</th><th class="num">Reorder at</th><th>Last updated</th></tr></thead>
+        <tbody>
+        <tr th:each="m : ${materials}" th:classappend="${m.atOrBelowThreshold} ? 'low'">
+            <td><a th:href="@{/materials/{id}(id=${m.materialId})}" th:text="${m.materialName}"></a></td>
+            <td th:text="${m.materialType.label()}"></td>
+            <td class="mono" th:text="${m.barcodeValue}"></td>
+            <td class="num" th:text="${@fmt.qty(m.quantityOnHand)} + ' ' + ${m.unitOfMeasure}"></td>
+            <td class="num" th:text="${@fmt.qty(m.reorderThreshold)}"></td>
+            <td th:text="${@fmt.time(m.lastUpdated)}"></td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(materials)}"><td colspan="6" class="muted">No materials yet. An Admin can import the spreadsheet.</td></tr>
+        </tbody>
+    </table>
+    <p class="muted small">Highlighted rows are at or below their reorder threshold. Automatic alerts arrive in Version 2.</p>
+</main>
+</body>
+</html>

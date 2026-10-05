@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:fragment="head(title)">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${title} + ' | NSI Inventory'">NSI Inventory</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<header th:fragment="nav" class="topbar">
+    <a class="brand" th:href="@{/}">NSI Inventory</a>
+    <nav>
+        <a sec:authorize="hasAnyRole('STOCKROOM','ADMIN')" th:href="@{/scan}">Scan</a>
+        <a th:href="@{/materials}">Materials</a>
+        <a sec:authorize="hasRole('ADMIN')" th:href="@{/import}">Import</a>
+        <a sec:authorize="hasRole('ADMIN')" th:href="@{/admin/users}">Staff</a>
+    </nav>
+    <form class="who" th:action="@{/logout}" method="post">
+        <span sec:authentication="principal.name">Name</span>
+        <span class="role" sec:authentication="principal.roleLabel">Role</span>
+        <button type="submit" class="link">Log out</button>
+    </form>
+</header>
+<div th:fragment="messages">
+    <p class="msg ok" th:if="${success}" th:text="${success}"></p>
+    <p class="msg err" th:if="${error}" th:text="${error}"></p>
+</div>
+</body>
+</html>

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{layout :: head(${material.materialName})}"></head>
+<body>
+<header th:replace="~{layout :: nav}"></header>
+<main>
+    <div class="row">
+        <h1 th:text="${material.materialName}">Material</h1>
+        <a sec:authorize="hasRole('ADMIN')" class="button" th:href="@{/materials/{id}/edit(id=${material.materialId})}">Edit</a>
+    </div>
+    <div th:replace="~{layout :: messages}"></div>
+    <dl class="card facts">
+        <dt>Type</dt><dd th:text="${material.materialType.label()}"></dd>
+        <dt>Barcode</dt><dd class="mono" th:text="${material.barcodeValue}"></dd>
+        <dt>On hand</dt><dd th:text="${@fmt.qty(material.quantityOnHand)} + ' ' + ${material.unitOfMeasure}"></dd>
+        <dt>Reorder threshold</dt><dd th:text="${@fmt.qty(material.reorderThreshold)}"></dd>
+        <dt>Last updated</dt><dd th:text="${@fmt.time(material.lastUpdated)}"></dd>
+    </dl>
+    <h2>Transactions</h2>
+    <table>
+        <thead><tr><th>When</th><th>Type</th><th class="num">Qty</th><th>Scanned code</th><th>Staff</th></tr></thead>
+        <tbody>
+        <tr th:each="t : ${history}">
+            <td th:text="${@fmt.time(t.transactionTimestamp)}"></td>
+            <td th:text="${t.transactionType.label()}"></td>
+            <td class="num" th:text="${@fmt.qty(t.quantity)}"></td>
+            <td class="mono" th:text="${t.scannedCode}"></td>
+            <td th:text="${t.staff.name}"></td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(history)}"><td colspan="5" class="muted">No transactions yet.</td></tr>
+        </tbody>
+    </table>
+</main>
+</body>
+</html>

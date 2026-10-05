@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head('Scan')}"></head>
+<body>
+<header th:replace="~{layout :: nav}"></header>
+<main>
+    <h1>Check in / check out</h1>
+    <div th:replace="~{layout :: messages}"></div>
+    <form class="card scan" th:action="@{/scan}" method="post">
+        <fieldset class="toggle">
+            <label><input type="radio" name="type" value="CHECK_OUT" th:checked="${type != 'CHECK_IN'}"> Check-Out</label>
+            <label><input type="radio" name="type" value="CHECK_IN" th:checked="${type == 'CHECK_IN'}"> Check-In</label>
+        </fieldset>
+        <label>Quantity <input name="quantity" inputmode="decimal" th:value="${quantity != null ? quantity : '1'}" required></label>
+        <label>Scan barcode / QR
+            <input name="scannedCode" class="big" th:value="${scannedCode}" placeholder="Click here, then scan" autocomplete="off" required autofocus>
+        </label>
+        <button type="submit">Record</button>
+        <p class="muted small">The scanner types the code and presses Enter, which records the transaction.</p>
+    </form>
+
+    <h2>Recent scans</h2>
+    <table>
+        <thead><tr><th>When</th><th>Type</th><th>Material</th><th class="num">Qty</th><th>Staff</th></tr></thead>
+        <tbody>
+        <tr th:each="t : ${recent}">
+            <td th:text="${@fmt.time(t.transactionTimestamp)}"></td>
+            <td th:text="${t.transactionType.label()}"></td>
+            <td><a th:href="@{/materials/{id}(id=${t.material.materialId})}" th:text="${t.material.materialName}"></a></td>
+            <td class="num" th:text="${@fmt.qty(t.quantity)} + ' ' + ${t.material.unitOfMeasure}"></td>
+            <td th:text="${t.staff.name}"></td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(recent)}"><td colspan="5" class="muted">No scans yet.</td></tr>
+        </tbody>
+    </table>
+</main>
+</body>
+</html>

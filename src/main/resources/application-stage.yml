@@ -1,0 +1,7 @@
+# STAGE (Module 6): Docker container on AWS EC2 with its own Amazon RDS staging database.
+# Connection values are injected at deploy time; nothing secret is committed.
+spring:
+  datasource:
+    url: jdbc:postgresql://${DB_HOST}:${DB_PORT:5432}/${DB_NAME:nsi_inventory}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}

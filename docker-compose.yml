@@ -1,0 +1,28 @@
+# Optional: run the app in Docker with PostgreSQL on your own PC, the way STAGE will run it.
+#   docker compose up --build      then open http://localhost:8080  (user: admin)
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: nsi_inventory
+      POSTGRES_USER: nsi_app
+      POSTGRES_PASSWORD: local-only-password
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nsi_app -d nsi_inventory"]
+      interval: 5s
+      retries: 10
+  app:
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: stage
+      APP_ENV: local-docker
+      DB_HOST: db
+      DB_NAME: nsi_inventory
+      DB_USERNAME: nsi_app
+      DB_PASSWORD: local-only-password
+      NSI_BOOTSTRAP_ADMIN_PASSWORD: local-admin-password
+    ports:
+      - "8080:8080"

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head('Import spreadsheet')}"></head>
+<body>
+<header th:replace="~{layout :: nav}"></header>
+<main>
+    <h1>Import spreadsheet data</h1>
+    <div th:replace="~{layout :: messages}"></div>
+    <form class="card" th:action="@{/import}" method="post" enctype="multipart/form-data">
+        <p class="small">Save the inventory spreadsheet as CSV with these columns:
+            <span class="mono">MaterialName, MaterialType, UnitOfMeasure, QuantityOnHand, ReorderThreshold, BarcodeValue</span>.
+            Rows are matched on BarcodeValue: new codes are added, existing ones updated.</p>
+        <label>CSV file <input type="file" name="file" accept=".csv,text/csv" required></label>
+        <button type="submit">Import</button>
+    </form>
+
+    <section class="card" th:if="${result}">
+        <h2 th:text="${result.log.importStatus.label()}">Completed</h2>
+        <p th:text="${result.created} + ' added, ' + ${result.updated} + ' updated, ' + ${result.log.recordsRejected} + ' rejected'"></p>
+        <ul class="errors" th:unless="${#lists.isEmpty(result.errors)}">
+            <li th:each="e : ${result.errors}" th:text="${e}"></li>
+        </ul>
+    </section>
+
+    <h2>Import log</h2>
+    <table>
+        <thead><tr><th>Date</th><th>File</th><th>By</th><th class="num">Imported</th><th class="num">Rejected</th><th>Status</th></tr></thead>
+        <tbody>
+        <tr th:each="l : ${logs}">
+            <td th:text="${@fmt.time(l.importDate)}"></td>
+            <td th:text="${l.fileName}"></td>
+            <td th:text="${l.importedBy.name}"></td>
+            <td class="num" th:text="${l.recordsImported}"></td>
+            <td class="num" th:text="${l.recordsRejected}"></td>
+            <td th:text="${l.importStatus.label()}"></td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(logs)}"><td colspan="6" class="muted">No imports yet.</td></tr>
+        </tbody>
+    </table>
+</main>
+</body>
+</html>

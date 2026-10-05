@@ -1,0 +1,7 @@
+# TEST: GitHub Actions runs the unit and integration tests against a real PostgreSQL test database
+# (a service container that exists only for the length of the CI job). Values come from the workflow.
+spring:
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:nsi_test}
+    username: ${DB_USERNAME:nsi_test}
+    password: ${DB_PASSWORD:nsi_test}
