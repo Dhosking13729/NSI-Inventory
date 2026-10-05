@@ -17,6 +17,7 @@
     <section class="card" th:if="${result}">
         <h2 th:text="${result.log.importStatus.label()}">Completed</h2>
         <p th:text="${result.created} + ' added, ' + ${result.updated} + ' updated, ' + ${result.log.recordsRejected} + ' rejected'"></p>
+        <p class="msg warn" th:if="${result.alertsRaised > 0}" th:text="${result.alertsRaised} + ' material(s) are below their reorder threshold. Low-stock alerts and reorder requests were created for Purchasing.'"></p>
         <ul class="errors" th:unless="${#lists.isEmpty(result.errors)}">
             <li th:each="e : ${result.errors}" th:text="${e}"></li>
         </ul>

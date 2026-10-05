@@ -26,6 +26,7 @@ class InventoryServiceTest {
     @Mock MaterialRepository materials;
     @Mock InventoryTransactionRepository transactions;
     @Mock StaffUserRepository staff;
+    @Mock AlertService alertEngine;
     @InjectMocks InventoryService service;
 
     Material bolt;
@@ -47,7 +48,7 @@ class InventoryServiceTest {
     @Test
     void checkInAddsToStockAndRecordsWhoScannedWhat() {
         found();
-        InventoryTransaction tx = service.record(TransactionType.CHECK_IN, "  NSI-FST-0038 ", new BigDecimal("2.5"), 1);
+        InventoryTransaction tx = service.record(TransactionType.CHECK_IN, "  NSI-FST-0038 ", new BigDecimal("2.5"), 1).transaction();
 
         assertThat(bolt.getQuantityOnHand()).isEqualByComparingTo("14.5");
         assertThat(tx.getTransactionType()).isEqualTo(TransactionType.CHECK_IN);
@@ -58,10 +59,18 @@ class InventoryServiceTest {
     }
 
     @Test
-    void checkOutSubtractsFromStock() {
+    void checkOutSubtractsFromStockAndRunsTheAlertEngine() {
         found();
         service.record(TransactionType.CHECK_OUT, "NSI-FST-0038", new BigDecimal("12"), 1);
         assertThat(bolt.getQuantityOnHand()).isEqualByComparingTo("0");
+        verify(alertEngine).evaluate(bolt, stockroom);
+    }
+
+    @Test
+    void checkInNeverRaisesAnAlert() {
+        found();
+        service.record(TransactionType.CHECK_IN, "NSI-FST-0038", BigDecimal.ONE, 1);
+        verifyNoInteractions(alertEngine);
     }
 
     @Test

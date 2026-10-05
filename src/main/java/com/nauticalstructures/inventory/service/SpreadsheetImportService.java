@@ -24,7 +24,7 @@ import java.util.List;
  * Import Spreadsheet Data use case (Admin). The legacy spreadsheet is saved as CSV with the columns
  * MaterialName, MaterialType, UnitOfMeasure, QuantityOnHand, ReorderThreshold, BarcodeValue.
  * Rows are matched on BarcodeValue (new rows are added, existing ones updated). A bad row is rejected with its
- * line number and never half-applied. Every run writes one ImportLog row.
+ * line number and never half-applied. Every run writes one ImportLog row, then the alert engine checks all materials.
  */
 @Service
 @Transactional
@@ -36,11 +36,14 @@ public class SpreadsheetImportService {
     private final MaterialRepository materials;
     private final ImportLogRepository importLogs;
     private final StaffUserRepository staff;
+    private final AlertService alertEngine;
 
-    public SpreadsheetImportService(MaterialRepository materials, ImportLogRepository importLogs, StaffUserRepository staff) {
+    public SpreadsheetImportService(MaterialRepository materials, ImportLogRepository importLogs, StaffUserRepository staff,
+                                    AlertService alertEngine) {
         this.materials = materials;
         this.importLogs = importLogs;
         this.staff = staff;
+        this.alertEngine = alertEngine;
     }
 
     public ImportResult importCsv(String fileName, Reader reader, Integer adminStaffId) throws IOException {
@@ -90,7 +93,8 @@ public class SpreadsheetImportService {
         ImportStatus status = failedOutright || imported == 0 ? ImportStatus.FAILED
                 : rejected > 0 ? ImportStatus.COMPLETED_WITH_ERRORS : ImportStatus.COMPLETED;
         ImportLog log = importLogs.save(new ImportLog(fileName, admin, imported, rejected, status));
-        return new ImportResult(log, created, updated, errors);
+        int alertsRaised = imported > 0 ? alertEngine.sweep(admin) : 0;   // imported stock may already be below threshold
+        return new ImportResult(log, created, updated, errors, alertsRaised);
     }
 
     private static BigDecimal decimal(String raw, String field) {

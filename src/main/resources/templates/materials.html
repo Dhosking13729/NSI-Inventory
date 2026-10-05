@@ -12,7 +12,7 @@
     <table>
         <thead><tr><th>Material</th><th>Type</th><th>Barcode</th><th class="num">On hand</th><th class="num">Reorder at</th><th>Last updated</th></tr></thead>
         <tbody>
-        <tr th:each="m : ${materials}" th:classappend="${m.atOrBelowThreshold} ? 'low'">
+        <tr th:each="m : ${materials}" th:classappend="${m.belowThreshold} ? 'low'">
             <td><a th:href="@{/materials/{id}(id=${m.materialId})}" th:text="${m.materialName}"></a></td>
             <td th:text="${m.materialType.label()}"></td>
             <td class="mono" th:text="${m.barcodeValue}"></td>
@@ -23,7 +23,7 @@
         <tr th:if="${#lists.isEmpty(materials)}"><td colspan="6" class="muted">No materials yet. An Admin can import the spreadsheet.</td></tr>
         </tbody>
     </table>
-    <p class="muted small">Highlighted rows are at or below their reorder threshold. Automatic alerts arrive in Version 2.</p>
+    <p class="muted small">Highlighted rows are below their reorder threshold; the alert engine has notified Purchasing.</p>
 </main>
 </body>
 </html>

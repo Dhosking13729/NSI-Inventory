@@ -38,8 +38,8 @@ public class Material {
     @PrePersist @PreUpdate
     void touch() { lastUpdated = Instant.now(); }
 
-    /** True when stock is at or below the reorder threshold (the Version 2 alert engine acts on this). */
-    public boolean isAtOrBelowThreshold() { return quantityOnHand.compareTo(reorderThreshold) <= 0; }
+    /** True when stock has dropped below the reorder threshold - the condition that fires a low-stock alert. */
+    public boolean isBelowThreshold() { return quantityOnHand.compareTo(reorderThreshold) < 0; }
 
     public Integer getMaterialId() { return materialId; }
     public String getMaterialName() { return materialName; }

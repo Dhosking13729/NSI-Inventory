@@ -13,9 +13,9 @@
 
     <groupId>com.nauticalstructures</groupId>
     <artifactId>nsi-inventory</artifactId>
-    <version>1.0.0</version>
+    <version>2.0.0</version>
     <name>NSI Inventory &amp; Materials Management</name>
-    <description>Nautical Structures Inventory &amp; Materials Management System Enhancement - Version 1 (barcode/QR check-in and check-out)</description>
+    <description>Nautical Structures Inventory &amp; Materials Management System Enhancement - Version 2 (low-stock alerts and reorder requests)</description>
 
     <properties>
         <java.version>21</java.version>

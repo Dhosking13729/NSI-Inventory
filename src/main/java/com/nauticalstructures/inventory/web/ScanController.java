@@ -39,7 +39,10 @@ public class ScanController {
         try {
             TransactionType txType = TransactionType.valueOf(type);
             BigDecimal qty = parse(quantity);
-            InventoryTransaction tx = inventory.record(txType, scannedCode, qty, CurrentStaff.id(auth));
+            InventoryService.ScanResult result = inventory.record(txType, scannedCode, qty, CurrentStaff.id(auth));
+            InventoryTransaction tx = result.transaction();
+            result.alert().ifPresent(a -> flash.addFlashAttribute("warning", "Stock is now below the reorder threshold of "
+                    + a.getTriggeredThreshold().stripTrailingZeros().toPlainString() + ". Purchasing has been alerted and a reorder request was created."));
             flash.addFlashAttribute("success", tx.getTransactionType().label() + " recorded: "
                     + qty.stripTrailingZeros().toPlainString() + " " + tx.getMaterial().getUnitOfMeasure() + " of "
                     + tx.getMaterial().getMaterialName() + ". Now on hand: "

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head('Reorder requests')}"></head>
+<body>
+<header th:replace="~{layout :: nav}"></header>
+<main>
+    <div class="row">
+        <h1>Reorder requests</h1>
+        <a class="button secondary" th:href="@{/alerts}">Low-stock alerts</a>
+    </div>
+    <div th:replace="~{layout :: messages}"></div>
+    <table>
+        <thead><tr><th>#</th><th>Created</th><th>Material</th><th class="num">Requested</th><th class="num">On hand</th><th>Source</th><th>Status</th><th>Reviewed by</th><th>Action</th></tr></thead>
+        <tbody>
+        <tr th:each="r : ${open}">
+            <td th:text="${r.requestId}"></td>
+            <td th:text="${@fmt.time(r.createdDate)}"></td>
+            <td><a th:href="@{/materials/{id}(id=${r.material.materialId})}" th:text="${r.material.materialName}"></a></td>
+            <td class="num" th:text="${@fmt.qty(r.requestedQuantity)} + ' ' + ${r.material.unitOfMeasure}"></td>
+            <td class="num" th:text="${@fmt.qty(r.material.quantityOnHand)}"></td>
+            <td th:text="${r.alert != null} ? ('Alert #' + ${r.alert.alertId}) : 'Manual'"></td>
+            <td th:text="${r.requestStatus.label()}"></td>
+            <td th:text="${r.reviewedBy != null} ? ${r.reviewedBy.name} : '—'"></td>
+            <td><div class="actions">
+                <form th:if="${r.requestStatus.name() == 'PENDING'}" th:action="@{/reorders/{id}/status(id=${r.requestId})}" method="post">
+                    <input type="hidden" name="status" value="ORDERED"><button type="submit" class="small">Mark ordered</button>
+                </form>
+                <form th:action="@{/reorders/{id}/status(id=${r.requestId})}" method="post">
+                    <input type="hidden" name="status" value="CLOSED"><button type="submit" class="small secondary">Close</button>
+                </form>
+            </div></td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(open)}"><td colspan="9" class="muted">No pending or ordered requests.</td></tr>
+        </tbody>
+    </table>
+
+    <h2>New manual request</h2>
+    <form class="card" th:action="@{/reorders}" method="post">
+        <label>Material
+            <select name="materialId" required>
+                <option value="">Choose…</option>
+                <option th:each="m : ${materials}" th:value="${m.materialId}" th:text="${m.materialName} + ' (' + ${m.barcodeValue} + ')'"></option>
+            </select>
+        </label>
+        <label>Quantity <input name="quantity" inputmode="decimal" required></label>
+        <button type="submit">Create request</button>
+    </form>
+
+    <h2>Recently closed</h2>
+    <table>
+        <thead><tr><th>#</th><th>Created</th><th>Material</th><th class="num">Requested</th><th>Reviewed by</th></tr></thead>
+        <tbody>
+        <tr th:each="r : ${closed}">
+            <td th:text="${r.requestId}"></td>
+            <td th:text="${@fmt.time(r.createdDate)}"></td>
+            <td th:text="${r.material.materialName}"></td>
+            <td class="num" th:text="${@fmt.qty(r.requestedQuantity)}"></td>
+            <td th:text="${r.reviewedBy != null} ? ${r.reviewedBy.name} : '—'"></td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(closed)}"><td colspan="5" class="muted">None yet.</td></tr>
+        </tbody>
+    </table>
+</main>
+</body>
+</html>

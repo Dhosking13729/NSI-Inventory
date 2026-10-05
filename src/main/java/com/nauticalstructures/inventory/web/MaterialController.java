@@ -20,10 +20,13 @@ public class MaterialController {
 
     private final MaterialService materials;
     private final InventoryService inventory;
+    private final com.nauticalstructures.inventory.service.AlertService alerts;
 
-    public MaterialController(MaterialService materials, InventoryService inventory) {
+    public MaterialController(MaterialService materials, InventoryService inventory,
+                              com.nauticalstructures.inventory.service.AlertService alerts) {
         this.materials = materials;
         this.inventory = inventory;
+        this.alerts = alerts;
     }
 
     @GetMapping
@@ -36,7 +39,22 @@ public class MaterialController {
     public String detail(@PathVariable Integer id, Model model) {
         model.addAttribute("material", materials.get(id));
         model.addAttribute("history", inventory.history(id));
+        model.addAttribute("alerts", alerts.forMaterial(id));
         return "material-detail";
+    }
+
+    /** Configure Reorder Threshold (Purchasing, Admin). */
+    @PostMapping("/{id}/threshold")
+    public String threshold(@PathVariable Integer id, @RequestParam(defaultValue = "") String reorderThreshold,
+                            org.springframework.security.core.Authentication auth, RedirectAttributes flash) {
+        try {
+            boolean alerted = materials.updateThreshold(id, number(reorderThreshold, "ReorderThreshold"), CurrentStaff.id(auth));
+            flash.addFlashAttribute("success", "Reorder threshold updated to " + reorderThreshold.trim() + ".");
+            if (alerted) flash.addFlashAttribute("warning", "Stock is below the new threshold, so a low-stock alert and reorder request were created.");
+        } catch (BusinessRuleException e) {
+            flash.addFlashAttribute("error", e.getMessage());
+        }
+        return "redirect:/materials/" + id;
     }
 
     @GetMapping("/new")
@@ -60,11 +78,11 @@ public class MaterialController {
 
     @PostMapping({"", "/{id}"})
     public String save(@PathVariable(required = false) Integer id, @RequestParam Map<String, String> form,
-                       Model model, RedirectAttributes flash) {
+                       org.springframework.security.core.Authentication auth, Model model, RedirectAttributes flash) {
         try {
             Material saved = materials.save(id, form.get("materialName"), parseType(form.get("materialType")),
                     form.get("unitOfMeasure"), number(form.get("quantityOnHand"), "QuantityOnHand"),
-                    number(form.get("reorderThreshold"), "ReorderThreshold"), form.get("barcodeValue"));
+                    number(form.get("reorderThreshold"), "ReorderThreshold"), form.get("barcodeValue"), CurrentStaff.id(auth));
             flash.addFlashAttribute("success", "Saved " + saved.getMaterialName());
             return "redirect:/materials/" + saved.getMaterialId();
         } catch (BusinessRuleException e) {

@@ -11,6 +11,8 @@
     <a class="brand" th:href="@{/}">NSI Inventory</a>
     <nav>
         <a sec:authorize="hasAnyRole('STOCKROOM','ADMIN')" th:href="@{/scan}">Scan</a>
+        <a sec:authorize="hasAnyRole('PURCHASING','ADMIN')" th:href="@{/alerts}">Alerts<span class="badge" th:if="${openAlertCount != null and openAlertCount > 0}" th:text="${openAlertCount}">0</span></a>
+        <a sec:authorize="hasAnyRole('PURCHASING','ADMIN')" th:href="@{/reorders}">Reorders</a>
         <a th:href="@{/materials}">Materials</a>
         <a sec:authorize="hasRole('ADMIN')" th:href="@{/import}">Import</a>
         <a sec:authorize="hasRole('ADMIN')" th:href="@{/admin/users}">Staff</a>
@@ -23,6 +25,7 @@
 </header>
 <div th:fragment="messages">
     <p class="msg ok" th:if="${success}" th:text="${success}"></p>
+    <p class="msg warn" th:if="${warning}" th:text="${warning}"></p>
     <p class="msg err" th:if="${error}" th:text="${error}"></p>
 </div>
 </body>
