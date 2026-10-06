@@ -15,8 +15,27 @@ import java.util.List;
 public class MaterialService {
 
     private final MaterialRepository materials;
+    private final AlertService alertEngine;
+    private final com.nauticalstructures.inventory.repository.StaffUserRepository staff;
 
-    public MaterialService(MaterialRepository materials) { this.materials = materials; }
+    public MaterialService(MaterialRepository materials, AlertService alertEngine,
+                           com.nauticalstructures.inventory.repository.StaffUserRepository staff) {
+        this.materials = materials;
+        this.alertEngine = alertEngine;
+        this.staff = staff;
+    }
+
+    /**
+     * Configure Reorder Threshold use case (Purchasing). If the new threshold puts current stock below it,
+     * the alert engine runs straight away. Returns true when an alert was raised.
+     */
+    public boolean updateThreshold(Integer id, BigDecimal threshold, Integer staffId) {
+        Material m = get(id);
+        m.setReorderThreshold(Quantities.nonNegative(threshold, "ReorderThreshold"));
+        materials.save(m);
+        var actor = staff.findById(staffId).orElseThrow(() -> new NotFoundException("No staff user #" + staffId));
+        return alertEngine.evaluate(m, actor).isPresent();
+    }
 
     @Transactional(readOnly = true)
     public List<Material> list() { return materials.findAllByOrderByMaterialNameAsc(); }
@@ -35,6 +54,15 @@ public class MaterialService {
                 .ifPresent(other -> { throw new BusinessRuleException("Barcode " + barcode + " is already used by " + other.getMaterialName()); });
         apply(m, name, type, unit, quantityOnHand, reorderThreshold, barcode);
         return materials.save(m);
+    }
+
+    /** Admin add/edit from the material form; afterwards the alert engine checks the material. */
+    public Material save(Integer id, String name, MaterialType type, String unit, BigDecimal quantityOnHand,
+                         BigDecimal reorderThreshold, String barcodeValue, Integer staffId) {
+        Material saved = save(id, name, type, unit, quantityOnHand, reorderThreshold, barcodeValue);
+        var actor = staff.findById(staffId).orElseThrow(() -> new NotFoundException("No staff user #" + staffId));
+        alertEngine.evaluate(saved, actor);
+        return saved;
     }
 
     static String normalizeBarcode(String value) {

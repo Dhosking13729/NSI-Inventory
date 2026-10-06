@@ -120,7 +120,8 @@ class WebFlowTest {
         mvc.perform(formLogin("sam.web", "a-long-password-1")).andExpect(redirectedUrl("/"));
         mvc.perform(formLogin("sam.web", "wrong-password")).andExpect(redirectedUrl("/login?error"));
         mvc.perform(get("/").with(as(stockroom))).andExpect(redirectedUrl("/scan"));
-        mvc.perform(get("/").with(as(purchasing))).andExpect(redirectedUrl("/materials"));
+        mvc.perform(get("/").with(as(purchasing))).andExpect(redirectedUrl("/alerts"));
+        mvc.perform(get("/").with(as(admin))).andExpect(redirectedUrl("/materials"));
         mvc.perform(post("/logout").with(as(stockroom)).with(csrf())).andExpect(redirectedUrl("/login?logout"));
     }
 

@@ -7,8 +7,8 @@ planners can see real-time stock. Java 21 · Spring Boot 3.3 · PostgreSQL · Gi
 ## Versions
 | Version | Module | Features | Stage |
 |---|---|---|---|
-| **1.0.0** | 5 | Log in with roles · check in / check out by barcode or QR scan · material catalog · spreadsheet import with import log · staff user management | **TEST** |
-| 2.0.0 | 6 | Low-stock alert engine · reorder thresholds · internal reorder-requests view · acknowledge/resolve alerts | STAGE |
+| 1.0.0 | 5 | Log in with roles · check in / check out by barcode or QR scan · material catalog · spreadsheet import with import log · staff user management | TEST |
+| **2.0.0** | 6 | Low-stock alert engine · reorder thresholds · internal reorder-requests view · acknowledge/resolve alerts | **TEST → STAGE** |
 | – | 7 | Security hardening, staging verification, release | PROD |
 
 ## DEV → TEST → STAGE → PROD
@@ -16,7 +16,7 @@ planners can see real-time stock. Java 21 · Spring Boot 3.3 · PostgreSQL · Gi
 |---|---|---|
 | DEV | IntelliJ IDEA on my workstation, `dev` profile | H2 file database |
 | TEST | GitHub Actions on every push and pull request (`.github/workflows/ci.yml`); passing `main` builds saved to S3 | PostgreSQL 16 test database (CI service container) |
-| STAGE | Docker container on AWS EC2 (Module 6) | Amazon RDS staging database |
+| STAGE | Docker container on AWS EC2, deployed from S3 by `.github/workflows/deploy-stage.yml` | Amazon RDS staging database |
 | PROD | Docker container on AWS EC2 (Module 7) | Amazon RDS production database |
 
 ## Work on it
@@ -36,14 +36,17 @@ planners can see real-time stock. Java 21 · Spring Boot 3.3 · PostgreSQL · Gi
 ## Layout
 ```
 .github/workflows/ci.yml        DEV -> TEST pipeline
-src/main/java/.../domain        Material, InventoryTransaction, StaffUser, ImportLog (data dictionary)
+.github/workflows/deploy-stage.yml  TEST -> STAGE deploy (run by hand)
+src/main/java/.../domain        Material, InventoryTransaction, StaffUser, ImportLog, LowStockAlert, ReorderRequest
 src/main/java/.../service       check-in/out, import, staff, materials
 src/main/java/.../web           pages and security rules
-src/main/resources/db/migration Flyway SQL (V1 = Version 1 tables)
+src/main/resources/db/migration Flyway SQL (V1 = Version 1 tables, V2 = alerts and reorder requests)
 src/main/resources/templates    screens (responsive HTML)
-src/test/java                   27 unit, integration and web tests
+src/test/java                   50 unit, integration and web tests
 data/sample-inventory.csv       spreadsheet export in import format
 infra/aws-setup-test.md         S3 bucket + GitHub secrets for TEST
+infra/aws-setup-stage.md        EC2 + RDS + Parameter Store for STAGE
+scripts/deploy-stage.sh         runs on the STAGE server: deploy, smoke test, rollback
 ```
 
 Repository: https://github.com/Dhosking13729/NSI-Inventory

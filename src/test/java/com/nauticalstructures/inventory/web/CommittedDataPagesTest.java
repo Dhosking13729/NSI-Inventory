@@ -38,6 +38,8 @@ class CommittedDataPagesTest {
 
     @AfterEach
     void cleanUp() {
+        jdbc.update("DELETE FROM reorder_request");
+        jdbc.update("DELETE FROM low_stock_alert");
         jdbc.update("DELETE FROM inventory_transaction");
         jdbc.update("DELETE FROM import_log");
         jdbc.update("DELETE FROM material");
@@ -57,5 +59,9 @@ class CommittedDataPagesTest {
         mvc.perform(get("/materials/" + m.getMaterialId()).with(as)).andExpect(status().isOk()).andExpect(content().string(containsString("Ivy Manager")));
         mvc.perform(get("/import").with(as)).andExpect(status().isOk()).andExpect(content().string(containsString("x.csv")));
         mvc.perform(get("/materials").with(as)).andExpect(status().isOk()).andExpect(content().string(containsString("class=\"low\"")));
+        // Version 2 screens: the check-out above dropped the paint below its threshold of 4
+        mvc.perform(get("/alerts").with(as)).andExpect(status().isOk()).andExpect(content().string(containsString("Antifouling")))
+                .andExpect(content().string(containsString("Ivy Manager")));
+        mvc.perform(get("/reorders").with(as)).andExpect(status().isOk()).andExpect(content().string(containsString("Alert #")));
     }
 }

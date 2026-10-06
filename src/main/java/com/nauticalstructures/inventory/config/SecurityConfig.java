@@ -11,7 +11,7 @@ import org.springframework.security.web.SecurityFilterChain;
 /**
  * Every use case starts with Log In. Role rules follow the Submission 3 use case diagram:
  * Stockroom staff check materials in and out; Admin runs the spreadsheet import and manages staff users;
- * Purchasing gets its own screens in Version 2. Admin can do everything.
+ * Purchasing works the alerts and reorder requests and sets reorder thresholds (Version 2). Admin can do everything.
  */
 @Configuration
 public class SecurityConfig {
@@ -27,6 +27,8 @@ public class SecurityConfig {
                         .requestMatchers("/css/**", "/login", "/error", "/actuator/health/**", "/actuator/info").permitAll()
                         .requestMatchers("/scan/**").hasAnyRole("STOCKROOM", "ADMIN")
                         .requestMatchers("/import/**", "/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/alerts/**", "/reorders/**").hasAnyRole("PURCHASING", "ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/materials/*/threshold").hasAnyRole("PURCHASING", "ADMIN")
                         .requestMatchers("/materials/new", "/materials/*/edit").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/materials/**").hasRole("ADMIN")
                         .anyRequest().authenticated())

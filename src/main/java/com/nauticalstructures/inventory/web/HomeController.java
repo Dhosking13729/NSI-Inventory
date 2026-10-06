@@ -10,10 +10,15 @@ public class HomeController {
     @GetMapping("/login")
     public String login() { return "login"; }
 
-    /** Stockroom staff land on the scan screen; everyone else on the material list. */
+    /** Stockroom staff land on the scan screen, Purchasing on alerts, Admin on the material list. */
     @GetMapping("/")
     public String home(Authentication auth) {
-        boolean scanner = auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_STOCKROOM"));
-        return scanner ? "redirect:/scan" : "redirect:/materials";
+        if (has(auth, "ROLE_STOCKROOM")) return "redirect:/scan";
+        if (has(auth, "ROLE_PURCHASING")) return "redirect:/alerts";
+        return "redirect:/materials";
+    }
+
+    private static boolean has(Authentication auth, String role) {
+        return auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals(role));
     }
 }

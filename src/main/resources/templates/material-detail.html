@@ -16,6 +16,25 @@
         <dt>Reorder threshold</dt><dd th:text="${@fmt.qty(material.reorderThreshold)}"></dd>
         <dt>Last updated</dt><dd th:text="${@fmt.time(material.lastUpdated)}"></dd>
     </dl>
+    <form sec:authorize="hasAnyRole('PURCHASING','ADMIN')" class="card inline" th:action="@{/materials/{id}/threshold(id=${material.materialId})}" method="post">
+        <label>Reorder threshold <input name="reorderThreshold" inputmode="decimal" th:value="${@fmt.qty(material.reorderThreshold)}" required></label>
+        <button type="submit">Update threshold</button>
+    </form>
+
+    <h2>Low-stock alerts</h2>
+    <table>
+        <thead><tr><th>Raised</th><th class="num">Threshold</th><th>Notified</th><th>Status</th></tr></thead>
+        <tbody>
+        <tr th:each="a : ${alerts}">
+            <td th:text="${@fmt.time(a.alertTimestamp)}"></td>
+            <td class="num" th:text="${@fmt.qty(a.triggeredThreshold)}"></td>
+            <td th:text="${a.notifiedStaff.name}"></td>
+            <td th:text="${a.status.label()}"></td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(alerts)}"><td colspan="4" class="muted">No alerts for this material.</td></tr>
+        </tbody>
+    </table>
+
     <h2>Transactions</h2>
     <table>
         <thead><tr><th>When</th><th>Type</th><th class="num">Qty</th><th>Scanned code</th><th>Staff</th></tr></thead>

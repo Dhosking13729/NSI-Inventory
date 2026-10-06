@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head('Low-stock alerts')}"></head>
+<body>
+<header th:replace="~{layout :: nav}"></header>
+<main>
+    <div class="row">
+        <h1>Low-stock alerts</h1>
+        <a class="button secondary" th:href="@{/reorders}">Reorder requests</a>
+    </div>
+    <div th:replace="~{layout :: messages}"></div>
+    <table>
+        <thead><tr><th>Raised</th><th>Material</th><th class="num">On hand</th><th class="num">Threshold</th><th>Notified</th><th>Status</th><th>Action</th></tr></thead>
+        <tbody>
+        <tr th:each="a : ${active}" th:classappend="${a.status.name() == 'OPEN'} ? 'low'">
+            <td th:text="${@fmt.time(a.alertTimestamp)}"></td>
+            <td><a th:href="@{/materials/{id}(id=${a.material.materialId})}" th:text="${a.material.materialName}"></a></td>
+            <td class="num" th:text="${@fmt.qty(a.material.quantityOnHand)} + ' ' + ${a.material.unitOfMeasure}"></td>
+            <td class="num" th:text="${@fmt.qty(a.triggeredThreshold)}"></td>
+            <td th:text="${a.notifiedStaff.name}"></td>
+            <td th:text="${a.status.label()}"></td>
+            <td><div class="actions">
+                <form th:if="${a.status.name() == 'OPEN'}" th:action="@{/alerts/{id}/status(id=${a.alertId})}" method="post">
+                    <input type="hidden" name="status" value="ACKNOWLEDGED"><button type="submit" class="small secondary">Acknowledge</button>
+                </form>
+                <form th:action="@{/alerts/{id}/status(id=${a.alertId})}" method="post">
+                    <input type="hidden" name="status" value="RESOLVED"><button type="submit" class="small">Resolve</button>
+                </form>
+            </div></td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(active)}"><td colspan="7" class="muted">No open alerts. Every material is at or above its threshold.</td></tr>
+        </tbody>
+    </table>
+    <p class="muted small">Acknowledge when you've seen an alert; resolve it once stock is reordered or the threshold is adjusted. Each alert also created a Pending reorder request.</p>
+
+    <h2>Recently resolved</h2>
+    <table>
+        <thead><tr><th>Raised</th><th>Material</th><th class="num">Threshold</th><th>Notified</th></tr></thead>
+        <tbody>
+        <tr th:each="a : ${resolved}">
+            <td th:text="${@fmt.time(a.alertTimestamp)}"></td>
+            <td th:text="${a.material.materialName}"></td>
+            <td class="num" th:text="${@fmt.qty(a.triggeredThreshold)}"></td>
+            <td th:text="${a.notifiedStaff.name}"></td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(resolved)}"><td colspan="4" class="muted">None yet.</td></tr>
+        </tbody>
+    </table>
+</main>
+</body>
+</html>
